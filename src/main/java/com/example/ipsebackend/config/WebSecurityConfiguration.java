@@ -5,6 +5,7 @@ import com.example.ipsebackend.service.jwt.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -39,33 +40,19 @@ public class WebSecurityConfiguration {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll() // Allow access to H2 console
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/admin/**").hasAnyAuthority(UserRole.ADMIN.name())
+                       .requestMatchers("/api/admin/**").hasAuthority(UserRole.ADMIN.name())
+                      .requestMatchers("/upload/**").permitAll()
                         .requestMatchers("/api/employeRetraite/**").hasAnyAuthority(UserRole.EmpRetraite.name())
                         .requestMatchers("/api/employeActif/**").hasAnyAuthority(UserRole.EmpActif.name())
 
-                        .requestMatchers("/api/contact/send-email").permitAll()
-                        .requestMatchers("/api/Contrat/**").permitAll()
+
+
+                        .requestMatchers(HttpMethod.POST, "/api/admin/**").hasAuthority(UserRole.ADMIN.name())
+                        .requestMatchers(HttpMethod.PUT, "/api/admin/**").hasAuthority(UserRole.ADMIN.name())
+                        .requestMatchers(HttpMethod.DELETE, "/api/admin/**").hasAuthority(UserRole.ADMIN.name())
+                        .requestMatchers(HttpMethod.GET, "/api/admin/**").hasAnyAuthority(UserRole.ADMIN.name())
 /*
 
-                        .requestMatchers(HttpMethod.POST, "/api/categories/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/categories/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/categories/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/categories/**").hasAnyAuthority("ADMIN", "VENDOR")
-
-                        .requestMatchers(HttpMethod.POST, "/api/modems/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/modems/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/modems/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/modems/**").hasAnyAuthority("ADMIN", "VENDOR")
-
-                        .requestMatchers(HttpMethod.POST, "/api/products/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasAuthority("ADMIN")
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyAuthority("ADMIN", "VENDOR")
-
-                        .requestMatchers(HttpMethod.POST, "/api/ventes/**").hasAuthority("VENDOR")
-                        .requestMatchers(HttpMethod.PUT, "/api/ventes/**").hasAuthority("VENDOR")
-                        .requestMatchers(HttpMethod.DELETE, "/api/ventes/**").hasAuthority("VENDOR")
-                        .requestMatchers(HttpMethod.GET, "/api/ventes/**").hasAnyAuthority("ADMIN", "VENDOR")
 */
 
 

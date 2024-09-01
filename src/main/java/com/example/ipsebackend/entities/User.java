@@ -31,16 +31,12 @@ public class User implements UserDetails {
     @Column(unique = true)
     private String cin;
 
-    private String d2d;
-
-    private String rn;
-
     private String password;
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
 
-
-
+    private boolean enabled = true;
+    private String region;
 
     public User(Long id) {
         this.id = id;
@@ -80,7 +76,7 @@ public class User implements UserDetails {
     @Override
     public boolean isEnabled() {
         //  return UserDetails.super.isEnabled();
-        return true;
+        return enabled;
     }
 
     public UserDto getUserDto(){
@@ -91,7 +87,7 @@ public class User implements UserDetails {
         //   userDto.setPassword(password);  // Include the password field
 
         userDto.setCin(cin);
-
+        userDto.setRegion(region);
         userDto.setUserRole(userRole);
         return userDto;
 

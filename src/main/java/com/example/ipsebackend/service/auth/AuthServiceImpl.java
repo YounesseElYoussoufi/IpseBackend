@@ -60,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
         user.setEmail(signupRequest.getEmail());
         user.setName(signupRequest.getName());
         user.setCin(signupRequest.getCin());
-
+        user.setRegion(signupRequest.getRegion());
         user.setPassword(new BCryptPasswordEncoder().encode(signupRequest.getPassword()));
         user.setUserRole(signupRequest.getUserRole());
 

@@ -21,9 +21,11 @@ import lombok.NoArgsConstructor;
 
         private String cin;
 
+
         private UserRole userRole;
+    private boolean enabled = true;
 
-
+    private String region;
 
     }
 

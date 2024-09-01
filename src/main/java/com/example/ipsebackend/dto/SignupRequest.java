@@ -19,8 +19,9 @@ public class SignupRequest {
 
 
 
-
     private String password;
 
     private UserRole userRole;
+    private String region;
+
 }
