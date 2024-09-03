@@ -42,6 +42,8 @@ public class WebSecurityConfiguration {
                         .requestMatchers("/api/auth/**").permitAll()
                        .requestMatchers("/api/admin/**").hasAuthority(UserRole.ADMIN.name())
                       .requestMatchers("/upload/**").permitAll()
+                        .requestMatchers("/uploadactif/**").permitAll()
+
                         .requestMatchers("/api/employeRetraite/**").hasAnyAuthority(UserRole.EmpRetraite.name())
                         .requestMatchers("/api/employeActif/**").hasAnyAuthority(UserRole.EmpActif.name())
 

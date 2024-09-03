@@ -28,7 +28,7 @@ public class EmployeRetraite extends Employe {
 
     private String statut;
     private String pension;
-    private String totalDette;
+    private Double totalDette;
     private Double totalPaiement;
     private Double reliquat;
     private String remarque;

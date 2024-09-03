@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Inheritance(strategy = InheritanceType.JOINED)
 @DiscriminatorColumn(name = "TYPE",length = 4)
@@ -22,7 +25,7 @@ public abstract class Employe {
     private String cin;
 
     @Column(name = "Nom_Prenom_Agent")
-    private String NomPrénomAgent;
+    private String nomPrénomAgent; // Renommez-le en utilisant une minuscule initiale
 
     private String email;
     private String contact;
@@ -30,5 +33,8 @@ public abstract class Employe {
 
     @Column(name = "type", insertable = false, updatable = false)
     private String type;
+
+    @OneToMany(mappedBy = "employe", cascade = CascadeType.ALL)
+    private List<Etudiant> etudiants = new ArrayList<>();
 
 }
