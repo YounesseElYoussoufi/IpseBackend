@@ -3,10 +3,13 @@ package com.example.ipsebackend.controller;
 import com.example.ipsebackend.dto.DetteDTO;
 import com.example.ipsebackend.dto.EmployeRetraiteDTO;
 import com.example.ipsebackend.dto.PaiementDTO;
+import com.example.ipsebackend.dto.UserDto;
 import com.example.ipsebackend.service.EmpoyeRetraiteService;
 import org.apache.poi.EncryptedDocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -39,11 +42,13 @@ public class EmployeRetraiteController {
     }
 
     @GetMapping(value = "/employe-retraite")
-    public Page<EmployeRetraiteDTO> listEmployeRetraites(
+    public ResponseEntity<?> listEmployeRetraites(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "") String search) {
-        return employeRetraiteService.listEmployeRetraites(page, size, search);
+        Pageable pageable = PageRequest.of(page, size);
+        Page<EmployeRetraiteDTO> EmpPage = employeRetraiteService.listEmployeRetraites(pageable,search);
+        return ResponseEntity.ok(EmpPage);
     }
 
 

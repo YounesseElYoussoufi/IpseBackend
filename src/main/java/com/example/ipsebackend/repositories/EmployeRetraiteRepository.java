@@ -14,6 +14,6 @@ public interface EmployeRetraiteRepository extends JpaRepository<EmployeRetraite
 
 EmployeRetraite findByNRCAR(String NRCAR);
 
-    Page<EmployeRetraite> findByNomPrénomAgentContaining(String search, Pageable pageable);
+    Page<EmployeRetraite> findByNRCARContaining(String search, Pageable pageable);
 
 }

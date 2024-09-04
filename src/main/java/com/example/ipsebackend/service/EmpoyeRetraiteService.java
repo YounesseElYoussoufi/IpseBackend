@@ -514,9 +514,9 @@ private final AnneeScolaireepository anneeScolaireepository ;
     }
 
 
-    public Page<EmployeRetraiteDTO> listEmployeRetraites(int page, int size, String search) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-        Page<EmployeRetraite> employeRetraitePage = employeRetraiterepository.findByNomPrénomAgentContaining(search, pageable);
+    public Page<EmployeRetraiteDTO> listEmployeRetraites( Pageable pageable ,String search) {
+       // Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+        Page<EmployeRetraite> employeRetraitePage = employeRetraiterepository.findByNRCARContaining(search, pageable);
         return employeRetraitePage.map(this::convertToDTO);
     }
 
