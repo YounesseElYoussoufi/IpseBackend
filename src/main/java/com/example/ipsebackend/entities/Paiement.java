@@ -20,4 +20,7 @@ public class Paiement {
 
     @ManyToOne
     private EmployeRetraite employeRetraite;
+    @ManyToOne
+    @JoinColumn(name = "etudiant_id")
+    private Etudiant etudiant;
 }

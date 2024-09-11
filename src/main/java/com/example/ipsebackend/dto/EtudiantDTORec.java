@@ -4,18 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class EtudiantDTO {
+public class EtudiantDTORec {
     private Long id;
-    private String cne;
-    private String nom;
-    private String prenom;
-    private String nomComplet;
-    private String aanneeDepart;
-
-
+    private String nomPrenom;
 }

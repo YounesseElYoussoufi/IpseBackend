@@ -41,13 +41,18 @@ public class WebSecurityConfiguration {
                         .requestMatchers("/h2-console/**").permitAll() // Allow access to H2 console
                         .requestMatchers("/api/auth/**").permitAll()
                        .requestMatchers("/api/admin/**").hasAuthority(UserRole.ADMIN.name())
-                      .requestMatchers("/upload/**").permitAll()
+                      //.requestMatchers("/upload/**").hasAnyAuthority(UserRole.EmpRetraite.name(),UserRole.EmpRetraite.name())
                         .requestMatchers("/uploadactif/**").permitAll()
-
+                        .requestMatchers("/employes/**").permitAll()
+                        .requestMatchers("etudiants/**").permitAll()
+                        .requestMatchers("uploadn/**").permitAll()
+                        .requestMatchers("/dettes/**").permitAll()
+                        .requestMatchers("/paiements/**").permitAll()
                         .requestMatchers("/api/employeRetraite/**").hasAnyAuthority(UserRole.EmpRetraite.name())
-                        .requestMatchers("/api/employeActif/**").hasAnyAuthority(UserRole.EmpActif.name())
-
-
+                      //  .requestMatchers("/api/employeActif/**").hasAnyAuthority(UserRole.EmpActif.name())
+                        .requestMatchers("/upload/**").permitAll() // Autoriser les deux rôles
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/recupaiement/**").permitAll()
 
                         .requestMatchers(HttpMethod.POST, "/api/admin/**").hasAuthority(UserRole.ADMIN.name())
                         .requestMatchers(HttpMethod.PUT, "/api/admin/**").hasAuthority(UserRole.ADMIN.name())

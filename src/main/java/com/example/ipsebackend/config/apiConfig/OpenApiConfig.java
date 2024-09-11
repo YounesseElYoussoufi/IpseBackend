@@ -12,7 +12,7 @@ public class OpenApiConfig {
     @Bean
     public OpenAPI customOpenAPI() {
         return new OpenAPI()
-                .info(new Info().title("Back Ventes API").version("3.0.0"))
+                .info(new Info().title("Back IPSE API").version("3.0.0"))
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes("bearer-key",
                                 new SecurityScheme()

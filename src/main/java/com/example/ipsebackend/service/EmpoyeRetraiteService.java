@@ -4,41 +4,42 @@ import com.example.ipsebackend.dto.*;
 import com.example.ipsebackend.entities.*;
 import com.example.ipsebackend.enums.CategorieRet;
 import com.example.ipsebackend.repositories.*;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.apache.poi.ss.usermodel.*;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 @Service
+
+@AllArgsConstructor
 public class EmpoyeRetraiteService {
- private EmployeRepository employeRepository;
+
+ private final EmployeRepository employeRepository;
     private final EmployeRetraiteRepository employeRetraiterepository;
     private final DetteRepository detterepository;
 private final PaiementRepository paiementrepository;
+@Autowired
+private DetteService detteService;
+@Autowired
+private PaiementService paiementService;
 
 private final EtudiantRepository    etudiantrepository;
 private final AnneeScolaireepository anneeScolaireepository ;
-    public EmpoyeRetraiteService(EmployeRetraiteRepository employeRetraiterepository, DetteRepository detterepository, PaiementRepository paiementrepository, EtudiantRepository etudiantrepository, AnneeScolaireepository anneeScolaireepository) {
-        this.employeRetraiterepository = employeRetraiterepository;
-        this.detterepository = detterepository;
-        this.paiementrepository = paiementrepository;
-        this.etudiantrepository = etudiantrepository;
-        this.anneeScolaireepository = anneeScolaireepository;
-    }
 
     public void save(MultipartFile file) throws IOException {
         // Créer un Workbook à partir du fichier
@@ -192,9 +193,11 @@ private final AnneeScolaireepository anneeScolaireepository ;
 
                 // Sauvegarder l'entité EmployeRetraite avant d'ajouter les Dette
                 employeRetraiterepository.save(employeRetraite);
+                employeRetraite.setPension(row.get(32));
+                System.out.println("Raw cell value: " + row.get(23));
 
                 // Créer les objets Dette associés et les sauvegarder
-                List<Dette> dettes = new ArrayList<>();
+               /* List<Dette> dettes = new ArrayList<>();
 
                 String dette18String = row.get(11);
                 if (dette18String != null) {
@@ -238,10 +241,6 @@ private final AnneeScolaireepository anneeScolaireepository ;
                     }
                 }
 
-
-               employeRetraite.setPension(row.get(32));
-                System.out.println("Raw cell value: " + row.get(23));
-
                 String dette21String = row.get(17);
                 if (dette21String != null) {
                     try {
@@ -282,8 +281,8 @@ private final AnneeScolaireepository anneeScolaireepository ;
                     } catch (NumberFormatException e) {
                         System.err.println("Invalid dette value: " + dette19String);
                     }
-                }
-                List<Paiement> paiements = new ArrayList<>();
+                }*/
+            /*    List<Paiement> paiements = new ArrayList<>();
                 String paiement19String = row.get(12);
                 if (paiement19String != null) {
                     try {
@@ -374,11 +373,7 @@ private final AnneeScolaireepository anneeScolaireepository ;
 
 
 
-
-
-
-
-
+*/
 
 
 
@@ -389,7 +384,9 @@ private final AnneeScolaireepository anneeScolaireepository ;
                     try {
                         Etudiant etudiant = new Etudiant();
                         etudiant.setNomComplet(row.get(3) + " " + row.get(4)); // Assurez-vous de bien concaténer le nom et prénom
-
+                        etudiant.setNom(row.get(3));
+                        etudiant.setPrenom(row.get(4));
+                        etudiant.setCne(row.get(34));
                         List<AnneScolaire> la = new ArrayList<>();
 
                         AnneScolaire a1 = new AnneScolaire();
@@ -434,7 +431,8 @@ private final AnneeScolaireepository anneeScolaireepository ;
                         List<Etudiant> le = new ArrayList<>();
                         le.add(etudiant);
                         employeRetraite.setEtudiants(le);
-
+                       // employeRetraite.setNbretudiant(le.size());
+                        employeRetraite.setNbretudiant(employeRetraite.getEtudiants().size());
                     } catch (NumberFormatException e) {
                         System.err.println("Invalid etudiant value: " + etudiantString);
                     }
@@ -451,6 +449,14 @@ private final AnneeScolaireepository anneeScolaireepository ;
                 }
 
 
+              /*  try {
+                    paiementService.save(file);
+                    detteService.save(file);
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }*/
+
+
 
 
 
@@ -461,13 +467,15 @@ private final AnneeScolaireepository anneeScolaireepository ;
 
                 // Ajoutez des objets Dette supplémentaires ici
 
-                detterepository.saveAll(dettes);  // Sauvegarder tous les Dette
-                paiementrepository.saveAll(paiements) ;
+                //detterepository.saveAll(dettes);  // Sauvegarder tous les Dette
+            //    paiementrepository.saveAll(paiements) ;
                 return employeRetraite;
             }).collect(Collectors.toList());
 
             // Sauvegarder tous les EmployeRetraite
             employeRetraiterepository.saveAll(employeRetraites);
+
+            employeRepository.saveAll(employeRetraites) ;
         }
     }
 
@@ -532,7 +540,7 @@ private final AnneeScolaireepository anneeScolaireepository ;
         dto.setTotalPaiement(employeRetraite.getTotalPaiement());
         dto.setReliquat(employeRetraite.getReliquat());
         dto.setRemarque(employeRetraite.getRemarque());
-
+        dto.setNbretudiant(employeRetraite.getEtudiants().size()) ;
         dto.setNomPrenomAgent(employeRetraite.getNomPrénomAgent());
         dto.setContact(employeRetraite.getContact());
 
@@ -568,7 +576,7 @@ private final AnneeScolaireepository anneeScolaireepository ;
         return dto;
     }
 
-    public List<DetteDTO> getDettesByNrcar(String nrcar) {
+   /* public List<DetteDTO> getDettesByNrcar(String nrcar) {
         EmployeRetraite employeRetraite = employeRetraiterepository.findByNRCAR(nrcar);
         if (employeRetraite == null) {
             return null; // ou lancer une exception selon le cas
@@ -577,8 +585,25 @@ private final AnneeScolaireepository anneeScolaireepository ;
         return employeRetraite.getDettes().stream()
                 .map(dette -> new DetteDTO(dette.getId(), dette.getAnneeDate(), dette.getMontantAPayer()))
                 .collect(Collectors.toList());
-    }
-    public List<PaiementDTO> getPaiementsByNrcar(String nrcar) {
+    }*/
+   public Page<DetteDTO> getDettesByNrcar(String nrcar, int page, int size) {
+       EmployeRetraite employeRetraite = employeRetraiterepository.findByNRCAR(nrcar);
+       if (employeRetraite == null) {
+           return Page.empty(); // ou lancer une exception selon le cas
+       }
+
+       Pageable pageable = PageRequest.of(page, size);
+       List<Dette> dettes = employeRetraite.getDettes();
+       int start = Math.min((int) pageable.getOffset(), dettes.size());
+       int end = Math.min((start + pageable.getPageSize()), dettes.size());
+       List<Dette> pagedDettes = dettes.subList(start, end);
+
+       return new PageImpl<>(pagedDettes.stream()
+               .map(dette -> new DetteDTO(dette.getId(), dette.getAnneeDate(), dette.getMontantAPayer()))
+               .collect(Collectors.toList()), pageable, dettes.size());
+   }
+
+    /*public List<PaiementDTO> getPaiementsByNrcar(String nrcar) {
         EmployeRetraite employeRetraite = employeRetraiterepository.findByNRCAR(nrcar);
         if (employeRetraite == null) {
             return null; // ou lancer une exception selon le cas
@@ -587,5 +612,121 @@ private final AnneeScolaireepository anneeScolaireepository ;
         return employeRetraite.getPaiements().stream()
                 .map(paiement -> new PaiementDTO(paiement.getId(), paiement.getDateDette(), paiement.getDatePaiement(), paiement.getMontant()))
                 .collect(Collectors.toList());
+    }*/
+    public Page<PaiementDTO> getPaiementsByNrcar(String nrcar, int page, int size) {
+        EmployeRetraite employeRetraite = employeRetraiterepository.findByNRCAR(nrcar);
+        if (employeRetraite == null) {
+            return Page.empty(); // ou lancer une exception selon le cas
+        }
+
+        Pageable pageable = PageRequest.of(page, size);
+        List<Paiement> paiements = employeRetraite.getPaiements();
+        int start = Math.min((int) pageable.getOffset(), paiements.size());
+        int end = Math.min((start + pageable.getPageSize()), paiements.size());
+        List<Paiement> pagedPaiements = paiements.subList(start, end);
+
+        return new PageImpl<>(pagedPaiements.stream()
+                .map(paiement -> new PaiementDTO(paiement.getId(), paiement.getDateDette(), paiement.getDatePaiement(), paiement.getMontant()))
+                .collect(Collectors.toList()), pageable, paiements.size());
+    }
+
+    public EmployeAvecEtudiantsDTO getEmployeAvecEtudiants(Long employeId) {
+        Employe employe = employeRepository.findById(employeId).orElseThrow(() -> new RuntimeException("Employé non trouvé"));
+
+        List<EtudiantDTO> etudiantsDTO = employe.getEtudiants().stream()
+                .map(etudiant -> new EtudiantDTO(
+                        etudiant.getId(),
+                        etudiant.getCne(),
+                        etudiant.getNom(),
+                        etudiant.getPrenom(),
+                        etudiant.getNomComplet(),
+                        etudiant.getAanneeDepart()))
+                .collect(Collectors.toList());
+
+        return new EmployeAvecEtudiantsDTO(
+                employe.getId(),
+                employe.getMatricule(),
+                employe.getNomPrénomAgent(),
+                employe.getEmail(),
+                employe.getContact(),
+                employe.getNbretudiant(),
+                employe.getType(),
+                etudiantsDTO
+        );
+    }
+
+    public List<EmployeAvecEtudiantsDTO> getAllEmployesAvecEtudiants() {
+        return employeRepository.findAll().stream()
+                .map(employe -> {
+                    List<EtudiantDTO> etudiantsDTO = employe.getEtudiants().stream()
+                            .map(etudiant -> new EtudiantDTO(
+                                    etudiant.getId(),
+                                    etudiant.getCne(),
+                                    etudiant.getNom(),
+                                    etudiant.getPrenom(),
+                                    etudiant.getNomComplet(),
+                                    etudiant.getAanneeDepart()))
+                            .collect(Collectors.toList());
+
+                    return new EmployeAvecEtudiantsDTO(
+                            employe.getId(),
+                            employe.getMatricule(),
+                            employe.getNomPrénomAgent(),
+                            employe.getEmail(),
+                            employe.getContact(),
+                            employe.getNbretudiant(),
+                            employe.getType(),
+                            etudiantsDTO
+                    );
+                })
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void deleteEmployeRetraiteByNRCAR(String NRCAR) {
+        employeRetraiterepository.deleteByNRCAR(NRCAR);
+    }
+    @Transactional
+    public void deleteEmployesRetraitesByNRCARs(List<String> NRCARs) {
+        employeRetraiterepository.deleteAllByNRCARIn(NRCARs);
+    }
+
+    public EmployeRetraite saveEmployeRetraite(EmployeRetraite employeRetraite) {
+        return employeRetraiterepository.save(employeRetraite);
+    }
+
+
+    public ByteArrayInputStream exportEmployeRetraitesByCategorie(CategorieRet categorie) throws IOException {
+        List<EmployeRetraite> employeRetraites = employeRetraiterepository.findByCategorieRet(categorie);
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Employes Retraites");
+            Row header = sheet.createRow(0);
+
+            header.createCell(0).setCellValue("NRCAR");
+            header.createCell(1).setCellValue("Nom Prenom");
+            header.createCell(2).setCellValue("Categorie");
+            header.createCell(3).setCellValue("Date Retraite");
+            header.createCell(4).setCellValue("Statut");
+            header.createCell(5).setCellValue("Nombreetudiant");
+            // Ajouter d'autres colonnes si nécessaire
+
+            int rowIdx = 1;
+            for (EmployeRetraite employe : employeRetraites) {
+                Row row = sheet.createRow(rowIdx++);
+
+                row.createCell(0).setCellValue(employe.getNRCAR());
+                row.createCell(1).setCellValue(employe.getNomPrénomAgent());
+                row.createCell(2).setCellValue(employe.getCategorieRet().name());
+                row.createCell(3).setCellValue(employe.getDateretraite() != null ? employe.getDateretraite().toString() : "");
+                row.createCell(4).setCellValue(employe.getStatut());
+                // Remplir d'autres colonnes si nécessaire
+                row.createCell(5).setCellValue(employe.getEtudiants().size());
+            }
+
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        }
     }
 }

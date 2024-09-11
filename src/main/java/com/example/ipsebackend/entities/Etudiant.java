@@ -35,4 +35,20 @@ public String aanneeDepart ;
             inverseJoinColumns = @JoinColumn(name = "anne_scolaire_id")
     )
     private List<AnneScolaire> anneScolaires = new ArrayList<>();
+
+    @OneToMany(mappedBy = "etudiant")
+    private List<Note> notes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "etudiant")
+    private List<Dette> dettes = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "etudiant")
+    private List<Paiement> paiements = new ArrayList<>();
+
+    @OneToMany(mappedBy = "etudiant")
+    private List<NiveauScolaire> niveauScolaire = new ArrayList<>();
+
+
+
 }

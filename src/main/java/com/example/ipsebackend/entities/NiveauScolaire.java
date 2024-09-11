@@ -2,7 +2,6 @@ package com.example.ipsebackend.entities;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,20 +9,17 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Dette {
+public class NiveauScolaire {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-private String anneeDate;
-public Double MontantAPayer ;
-    @ManyToOne
-    @JoinColumn(name = "employe_retraite_id")
-    private EmployeRetraite employeRetraite;
-
-
+    public String anneScolaire;
+    public String etablissement ;
+    public float  notefinals1 ;
+    public float  notefinals2 ;
+    public String niveau ;
+    public String groupe ;
     @ManyToOne
     @JoinColumn(name = "etudiant_id")
     private Etudiant etudiant;
-
 }

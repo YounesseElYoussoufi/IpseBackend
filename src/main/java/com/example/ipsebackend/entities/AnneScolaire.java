@@ -26,4 +26,17 @@ private Long id;
 
     @ManyToMany(mappedBy = "anneScolaires")
     private List<Etudiant> etudiants = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "anne_scolaire_matiere",
+            joinColumns = @JoinColumn(name = "anne_scolaire_id"),
+            inverseJoinColumns = @JoinColumn(name = "matiere_id")
+    )
+    private List<Matiere> matieres = new ArrayList<>();
+
+    @OneToMany(mappedBy = "anneScolaire")
+    private List<Note> notes = new ArrayList<>();
+
+
 }

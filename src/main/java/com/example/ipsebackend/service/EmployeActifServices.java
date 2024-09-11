@@ -1,13 +1,18 @@
 package com.example.ipsebackend.service;
 
+import com.example.ipsebackend.dto.EmployeActifReDTO;
+import com.example.ipsebackend.dto.RetenueDto;
 import com.example.ipsebackend.entities.*;
 import com.example.ipsebackend.enums.CategorieRet;
 import com.example.ipsebackend.enums.CategoriieAct;
 import com.example.ipsebackend.repositories.*;
 import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.ParseException;
@@ -25,7 +30,8 @@ public class EmployeActifServices {
     private final PaiementRepository paiementrepository;
 
     private final EtudiantRepository etudiantrepository;
-    private final AnneeScolaireepository anneeScolaireepository ;
+    private final AnneeScolaireepository anneeScolaireepository;
+
     public EmployeActifServices(EmployeActifRepository employeActifRepository, DetteRepository detterepository, PaiementRepository paiementrepository, EtudiantRepository etudiantrepository, AnneeScolaireepository anneeScolaireepository) {
         this.employeActifRepository = employeActifRepository;
         this.detterepository = detterepository;
@@ -60,11 +66,12 @@ public class EmployeActifServices {
             List<EmployeActif> excelDataList = rows.stream().map(row -> {
 
 
-                EmployeActif  employeActif = employeActifRepository.findByMatriculeEmp(row.get(0));
-                if(employeActif == null) {
+                EmployeActif employeActif = employeActifRepository.findByMatriculeEmp(row.get(0));
+                if (employeActif == null ) {
                     employeActif = new EmployeActif();
-                    employeActif.setMatricule(row.get(0));
-                    employeActif.setMatriculeEmp(row.get(0));
+                 //   employeActif.setMatricule(row.get(0));
+                  //
+                    //  employeActif.setMatriculeEmp(row.get(0));
                 }
 
                 employeActif.setMatricule(row.get(0));
@@ -77,8 +84,8 @@ public class EmployeActifServices {
                 String typeString = row.get(2);
                 if (typeString != null) {
                     try {
-                       CategoriieAct typeEnum = CategoriieAct.valueOf(typeString.toUpperCase());
-                       employeActif.setCategorieAct(typeEnum);
+                        CategoriieAct typeEnum = CategoriieAct.valueOf(typeString.toUpperCase());
+                        employeActif.setCategorieAct(typeEnum);
                     } catch (IllegalArgumentException e) {
                         System.err.println("Type enum invalide: " + typeString);
                     }
@@ -98,21 +105,13 @@ public class EmployeActifServices {
                 AnneScolaire a = new AnneScolaire();
 
 
-
-
-
-
-
-
-
-
                 List<Etudiant> etudiants = new ArrayList<>();
                 String etudiantString = row.get(0);
                 if (etudiantString != null) {
                     try {
-                        Etudiant etudiant = new Etudiant();
+                      /*  Etudiant etudiant = new Etudiant();
                         etudiant.setNomComplet(row.get(3)); // Assurez-vous de bien concaténer le nom et prénom
-                        etudiant.setCne(row.get(6));
+                        etudiant.setCne(row.get(6));*/
                         List<AnneScolaire> la = new ArrayList<>();
 
                         AnneScolaire a3 = new AnneScolaire();
@@ -128,18 +127,19 @@ public class EmployeActifServices {
                         la.add(a3);
 
                         // Associer les années scolaires à l'étudiant
-                        etudiant.setAnneScolaires(la);
+                        e1.setAnneScolaires(la);
 
 
-                        a3.getEtudiants().add(etudiant);
+                        a3.getEtudiants().add(e1);
 
                         // Sauvegarder l'étudiant
-                        etudiants.add(etudiant);
-                        etudiant.setEmploye(employeActif);
+                        etudiants.add(e1);
+                        e1.setEmploye(employeActif);
                         List<Etudiant> le = new ArrayList<>();
-                        le.add(etudiant);
+                        le.add(e1);
                         employeActif.setEtudiants(le);
-
+                        employeActif.setNbretudiant(employeActif.getEtudiants().size());
+                        //employeActif.setNbretudiant(le.size());
                     } catch (NumberFormatException e) {
                         System.err.println("Invalid etudiant value: " + etudiantString);
                     }
@@ -154,7 +154,7 @@ public class EmployeActifServices {
                     etudiantrepository.saveAll(etudiants);
                 }
 
-
+              //  savedEmploye.setNbretudiant(savedEmploye.getEtudiants().size());
 
 
               /*  String ContactStr = row.get(7);
@@ -171,9 +171,9 @@ public class EmployeActifServices {
                 etudiantrepository.save(e1);
 
                 // Ajouter l'étudiant à la liste des étudiants de l'employé
-                List<Etudiant> le = new ArrayList<>();
+                /*List<Etudiant> le = new ArrayList<>();
                 le.add(e1);
-                savedEmploye.setEtudiants(le);
+                savedEmploye.setEtudiants(le);*/
 
                 return savedEmploye;
             }).collect(Collectors.toList());
@@ -225,4 +225,61 @@ public class EmployeActifServices {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
         return sdf.format(date);
     }
+
+    public EmployeActifReDTO getEmployeActifWithRetenues(String matriculeEmp) {
+        EmployeActif employeActif = employeActifRepository.findByMatriculeEmp(matriculeEmp);
+        if (employeActif == null) {
+            return null; // Ou lancer une exception si nécessaire
+        }
+
+        EmployeActifReDTO employeActifDTO = new EmployeActifReDTO();
+        employeActifDTO.setId(employeActif.getId());
+        employeActifDTO.setMatricule(employeActif.getMatriculeEmp());
+        employeActifDTO.setCategorieAct(employeActif.getCategorieAct());
+
+        List<RetenueDto> retenueDTOs = employeActif.getRetenues().stream().map(ret -> {
+                RetenueDto  dto = new RetenueDto();
+        dto.setId(ret.getId());
+        dto.setLib(ret.getLib());
+        dto.setMontant(ret.getMontant());
+        dto.setDateDebut(ret.getDateDebut());
+        dto.setDateFin(ret.getDateFin());
+        return dto;
+        }).collect(Collectors.toList());
+
+        employeActifDTO.setRetenues(retenueDTOs);
+        return employeActifDTO;
+    }
+
+    public ByteArrayInputStream exportEmployesByCategorie(CategoriieAct categorie) throws IOException {
+        List<EmployeActif> employesActifs = employeActifRepository.findByCategorieAct(categorie);
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            var sheet = workbook.createSheet("Employés Actifs");
+
+            // Créez des en-têtes et remplissez les données dans le workbook
+            // Exemple d'en-tête
+            var header = sheet.createRow(0);
+            header.createCell(0).setCellValue("Matricule");
+            header.createCell(1).setCellValue("Nom Complet");
+            header.createCell(2).setCellValue("nbretudiant");
+            // Ajoutez plus d'en-têtes selon vos besoins
+
+            // Ajoutez les données
+            int rowNum = 1;
+            for (EmployeActif employe : employesActifs) {
+                var row = sheet.createRow(rowNum++);
+                row.createCell(0).setCellValue(employe.getMatricule());
+                row.createCell(1).setCellValue(employe.getNomPrénomAgent());
+                row.createCell(2).setCellValue(employe.getEtudiants().size());
+                // Ajoutez plus de cellules selon vos besoins
+            }
+
+            try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+                workbook.write(out);
+                return new ByteArrayInputStream(out.toByteArray());
+            }
+        }
+    }
 }
+
